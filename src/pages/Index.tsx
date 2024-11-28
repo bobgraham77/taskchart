@@ -5,6 +5,12 @@ import { Card } from "@/components/ui/card";
 import { PlusCircle, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { format, subDays, subMonths } from "date-fns";
 
+const mockTasks = [
+  { id: 1, title: "Review Q1 Report", priority: "high", status: "pending" },
+  { id: 2, title: "Team Meeting", priority: "medium", status: "completed" },
+  { id: 3, title: "Update Documentation", priority: "low", status: "pending" },
+];
+
 const generateDailyData = () => [
   { name: "9:00", completion: 65, task: "Review Q1 Report" },
   { name: "11:00", completion: 75, task: "Team Meeting" },
@@ -47,6 +53,18 @@ const generateYearlyData = () => {
   });
 };
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    payload: {
+      task?: string;
+      fullDate?: string;
+      name: string;
+    };
+  }>;
+}
+
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
 
@@ -65,7 +83,7 @@ const Index = () => {
     }
   }, [selectedPeriod]);
 
-  const CustomTooltip = ({ active, payload }) => {
+  const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     if (!active || !payload || !payload.length) return null;
 
     const value = payload[0].value;
@@ -73,13 +91,13 @@ const Index = () => {
 
     switch (selectedPeriod) {
       case "day":
-        label = payload[0].payload.task;
+        label = payload[0].payload.task || "";
         break;
       case "week":
-        label = payload[0].payload.fullDate;
+        label = payload[0].payload.fullDate || "";
         break;
       case "month":
-        label = payload[0].payload.fullDate;
+        label = payload[0].payload.fullDate || "";
         break;
       case "year":
         label = payload[0].payload.name;
