@@ -1,27 +1,98 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlusCircle, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { format, subDays, subMonths } from "date-fns";
 
-const data = [
-  { name: "M", completion: 65 },
-  { name: "T", completion: 75 },
-  { name: "W", completion: 85 },
-  { name: "T", completion: 70 },
-  { name: "F", completion: 90 },
-  { name: "S", completion: 95 },
-  { name: "S", completion: 88 },
+const generateDailyData = () => [
+  { name: "9:00", completion: 65, task: "Review Q1 Report" },
+  { name: "11:00", completion: 75, task: "Team Meeting" },
+  { name: "13:00", completion: 85, task: "Update Documentation" },
+  { name: "15:00", completion: 70, task: "Client Call" },
+  { name: "17:00", completion: 90, task: "Code Review" },
+  { name: "19:00", completion: 95, task: "Project Planning" },
+  { name: "21:00", completion: 88, task: "Daily Summary" },
 ];
 
-const mockTasks = [
-  { id: 1, title: "Review Q1 Report", priority: "high", status: "pending" },
-  { id: 2, title: "Team Meeting", priority: "medium", status: "completed" },
-  { id: 3, title: "Update Documentation", priority: "low", status: "pending" },
-];
+const generateWeeklyData = () => {
+  return Array.from({ length: 7 }).map((_, index) => {
+    const date = subDays(new Date(), 6 - index);
+    return {
+      name: format(date, "EEE"),
+      fullDate: format(date, "PP"),
+      completion: Math.floor(Math.random() * 30) + 65,
+    };
+  });
+};
+
+const generateMonthlyData = () => {
+  return Array.from({ length: 30 }).map((_, index) => {
+    const date = subDays(new Date(), 29 - index);
+    return {
+      name: format(date, "d"),
+      fullDate: format(date, "PPPP"),
+      completion: Math.floor(Math.random() * 30) + 65,
+    };
+  });
+};
+
+const generateYearlyData = () => {
+  return Array.from({ length: 12 }).map((_, index) => {
+    const date = subMonths(new Date(), 11 - index);
+    return {
+      name: format(date, "MMM"),
+      completion: Math.floor(Math.random() * 30) + 65,
+    };
+  });
+};
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
+
+  const data = useMemo(() => {
+    switch (selectedPeriod) {
+      case "day":
+        return generateDailyData();
+      case "week":
+        return generateWeeklyData();
+      case "month":
+        return generateMonthlyData();
+      case "year":
+        return generateYearlyData();
+      default:
+        return generateWeeklyData();
+    }
+  }, [selectedPeriod]);
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const value = payload[0].value;
+    let label = "";
+
+    switch (selectedPeriod) {
+      case "day":
+        label = payload[0].payload.task;
+        break;
+      case "week":
+        label = payload[0].payload.fullDate;
+        break;
+      case "month":
+        label = payload[0].payload.fullDate;
+        break;
+      case "year":
+        label = payload[0].payload.name;
+        break;
+    }
+
+    return (
+      <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-sm shadow-xl">
+        <p className="font-medium text-foreground">{label}</p>
+        <p className="text-muted-foreground">{value}% completed</p>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-6 max-w-7xl mx-auto dark">
@@ -83,14 +154,7 @@ const Index = () => {
                 hide={true}
               />
               <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1A1F2C',
-                  border: '1px solid #333',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
-                labelStyle={{ color: '#fff' }}
-                formatter={(value) => [`${value}%`, 'Completion']}
+                content={<CustomTooltip />}
               />
               <Line
                 type="monotone"
