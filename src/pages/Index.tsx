@@ -105,9 +105,9 @@ const Index = () => {
     }
 
     return (
-      <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-sm shadow-xl">
-        <p className="font-medium text-foreground">{label}</p>
-        <p className="text-muted-foreground">{value}% completed</p>
+      <div className="rounded-lg border border-border/50 bg-secondary/90 px-3 py-2 text-sm shadow-xl">
+        <p className="font-medium text-white mb-1">{label}</p>
+        <p className="text-gray-300">{value}% completed</p>
       </div>
     );
   };
