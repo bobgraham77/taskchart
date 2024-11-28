@@ -6,13 +6,13 @@
 
 @layer base {
   body {
-    @apply bg-background font-sans text-secondary antialiased;
+    @apply bg-secondary font-sans text-white antialiased;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-card-bg rounded-xl p-4 shadow-sm transition-all hover:shadow-md;
+    @apply bg-card-bg rounded-xl p-4 shadow-sm transition-all hover:shadow-md dark:bg-secondary/80 dark:text-white;
   }
   
   .priority-high {

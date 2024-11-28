@@ -5,13 +5,13 @@ import { Card } from "@/components/ui/card";
 import { PlusCircle, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 
 const data = [
-  { name: "Mon", completion: 65 },
-  { name: "Tue", completion: 75 },
-  { name: "Wed", completion: 85 },
-  { name: "Thu", completion: 70 },
-  { name: "Fri", completion: 90 },
-  { name: "Sat", completion: 95 },
-  { name: "Sun", completion: 88 },
+  { name: "M", completion: 65 },
+  { name: "T", completion: 75 },
+  { name: "W", completion: 85 },
+  { name: "T", completion: 70 },
+  { name: "F", completion: 90 },
+  { name: "S", completion: 95 },
+  { name: "S", completion: 88 },
 ];
 
 const mockTasks = [
@@ -24,29 +24,34 @@ const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
 
   return (
-    <div className="min-h-screen p-4 md:p-6 max-w-7xl mx-auto">
+    <div className="min-h-screen p-4 md:p-6 max-w-7xl mx-auto dark">
       {/* Header */}
       <header className="mb-8 animate-fade-in">
-        <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
           Task Dashboard
         </h1>
-        <p className="text-gray-600">Track your productivity and tasks</p>
+        <p className="text-gray-400">Track your productivity and tasks</p>
       </header>
 
       {/* Main Chart */}
-      <Card className="p-4 mb-8 animate-slide-up">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Completion Rate</h2>
-          <div className="flex gap-2">
-            {["day", "week", "month", "year"].map((period) => (
+      <Card className="p-4 mb-8 animate-slide-up bg-secondary/80">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+          <h2 className="font-semibold text-white">Completion Rate</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: "day", label: "D" },
+              { id: "week", label: "W" },
+              { id: "month", label: "M" },
+              { id: "year", label: "Y" },
+            ].map(({ id, label }) => (
               <Button
-                key={period}
-                variant={selectedPeriod === period ? "default" : "outline"}
+                key={id}
+                variant={selectedPeriod === id ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSelectedPeriod(period)}
-                className="capitalize"
+                onClick={() => setSelectedPeriod(id)}
+                className="w-8 h-8 p-0"
               >
-                {period}
+                {label}
               </Button>
             ))}
           </div>
@@ -54,14 +59,36 @@ const Index = () => {
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <defs>
+                <linearGradient id="colorCompletion" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#0070F3" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#0070F3" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <XAxis 
+                dataKey="name" 
+                stroke="#666"
+                tick={{ fill: '#999' }}
+              />
+              <YAxis 
+                stroke="#666"
+                tick={{ fill: '#999' }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#1A1F2C',
+                  border: '1px solid #333',
+                  borderRadius: '8px'
+                }}
+                labelStyle={{ color: '#fff' }}
+              />
               <Line
                 type="monotone"
                 dataKey="completion"
                 stroke="#0070F3"
                 strokeWidth={2}
+                dot={false}
+                fill="url(#colorCompletion)"
               />
             </LineChart>
           </ResponsiveContainer>
