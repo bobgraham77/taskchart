@@ -35,8 +35,7 @@ const Index = () => {
 
       {/* Main Chart */}
       <Card className="p-4 mb-8 animate-slide-up bg-secondary/80">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
-          <h2 className="font-semibold text-white">Completion Rate</h2>
+        <div className="flex justify-end mb-4">
           <div className="flex flex-wrap gap-2">
             {[
               { id: "day", label: "D" },
@@ -49,7 +48,9 @@ const Index = () => {
                 variant={selectedPeriod === id ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedPeriod(id)}
-                className="w-8 h-8 p-0"
+                className={`w-8 h-8 p-0 ${
+                  selectedPeriod === id ? "" : "text-gray-500"
+                }`}
               >
                 {label}
               </Button>
@@ -58,29 +59,38 @@ const Index = () => {
         </div>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
+            <LineChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
               <defs>
                 <linearGradient id="colorCompletion" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#0070F3" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#0070F3" stopOpacity={0}/>
+                  <stop offset="95%" stopColor="#0070F3" stopOpacity={0.1}/>
                 </linearGradient>
+                <filter id="glow" height="300%" width="300%" x="-100%" y="-100%">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
               </defs>
               <XAxis 
                 dataKey="name" 
-                stroke="#666"
-                tick={{ fill: '#999' }}
+                axisLine={false}
+                tickLine={false}
+                tick={false}
               />
               <YAxis 
-                stroke="#666"
-                tick={{ fill: '#999' }}
+                hide={true}
               />
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: '#1A1F2C',
                   border: '1px solid #333',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
                 labelStyle={{ color: '#fff' }}
+                formatter={(value) => [`${value}%`, 'Completion']}
               />
               <Line
                 type="monotone"
@@ -89,6 +99,7 @@ const Index = () => {
                 strokeWidth={2}
                 dot={false}
                 fill="url(#colorCompletion)"
+                filter="url(#glow)"
               />
             </LineChart>
           </ResponsiveContainer>
