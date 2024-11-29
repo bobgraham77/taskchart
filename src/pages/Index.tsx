@@ -1,16 +1,9 @@
 import { useState, useMemo } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area } from "recharts";
 import { Card } from "@/components/ui/card";
-import { PlusCircle, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { format, subDays, subMonths, startOfMonth, endOfMonth, eachWeekOfInterval } from "date-fns";
-import { TaskForm } from "@/components/TaskForm";
-
-// Add the missing interface
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: any[];
-  label?: string;
-}
+import { TaskChart } from "@/components/TaskChart";
+import { PriorityColumn } from "@/components/PriorityColumn";
 
 const generateDailyData = () => [
   { name: "9:00", completion: 65, task: "Review Q1 Report" },
@@ -91,37 +84,13 @@ const Index = () => {
     }
   }, [selectedPeriod]);
 
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-    if (!active || !payload || !payload.length) return null;
-
-    const value = payload[0].value;
-    let tooltipLabel = "";
-
-    switch (selectedPeriod) {
-      case "day":
-        tooltipLabel = payload[0].payload.task || "";
-        break;
-      case "week":
-        tooltipLabel = payload[0].payload.fullDate || "";
-        break;
-      case "month":
-        tooltipLabel = payload[0].payload.fullDate || "";
-        break;
-      case "year":
-        tooltipLabel = payload[0].payload.name;
-        break;
-    }
-
-    return (
-      <div className="rounded-lg border border-border/50 bg-secondary/90 px-3 py-2 text-sm shadow-xl">
-        <p className="font-medium text-white mb-1">{tooltipLabel}</p>
-        <p className="text-gray-300">{value}% completed</p>
-      </div>
-    );
-  };
-
-  const handleAddTask = (newTask: Task) => {
-    setTasks(prev => [...prev, newTask]);
+  const handleAddTask = (newTask: { title: string; priority: string }) => {
+    setTasks(prev => [...prev, { 
+      id: prev.length + 1, 
+      title: newTask.title, 
+      priority: newTask.priority as "high" | "medium" | "low",
+      status: "pending"
+    }]);
   };
 
   return (
@@ -156,78 +125,17 @@ const Index = () => {
             ))}
           </div>
         </div>
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-              <defs>
-                <linearGradient id="colorCompletion" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00ff9d" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#00ff9d" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <XAxis 
-                dataKey="name" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: '#666' }}
-              />
-              <YAxis 
-                hide={true}
-              />
-              <Tooltip 
-                content={<CustomTooltip />}
-              />
-              <Area
-                type="monotone"
-                dataKey="completion"
-                stroke="#00ff9d"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#colorCompletion)"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <TaskChart data={data} selectedPeriod={selectedPeriod} />
       </Card>
-
-      <div className="mb-8">
-        <TaskForm onAddTask={handleAddTask} />
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {["high", "medium", "low"].map((priority) => (
-          <div key={priority} className="space-y-3">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold capitalize text-gray-400">
-                {priority} Priority
-              </h3>
-            </div>
-            <div className="space-y-3">
-              {tasks
-                .filter((task) => task.priority === priority)
-                .map((task) => (
-                  <div
-                    key={task.id}
-                    className={`bg-secondary/20 rounded-lg p-4 border-l-2 ${
-                      priority === "high" 
-                        ? "border-red-500" 
-                        : priority === "medium" 
-                        ? "border-amber-500" 
-                        : "border-emerald-500"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-white">{task.title}</span>
-                      {task.status === "completed" ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Clock className="h-5 w-5 text-gray-400" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
+          <PriorityColumn
+            key={priority}
+            priority={priority as "high" | "medium" | "low"}
+            tasks={tasks}
+            onAddTask={handleAddTask}
+          />
         ))}
       </div>
 

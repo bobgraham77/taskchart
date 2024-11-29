@@ -3,11 +3,12 @@ import { PlusCircle } from "lucide-react";
 
 interface TaskFormProps {
   onAddTask: (task: { title: string; priority: string }) => void;
+  defaultPriority?: string;
 }
 
-export const TaskForm = ({ onAddTask }: TaskFormProps) => {
+export const TaskForm = ({ onAddTask, defaultPriority = "medium" }: TaskFormProps) => {
   const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState("medium");
+  const [priority, setPriority] = useState(defaultPriority);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,15 +27,17 @@ export const TaskForm = ({ onAddTask }: TaskFormProps) => {
         placeholder="Add new task..."
         className="flex-1 bg-transparent border-b border-gray-700 focus:border-primary outline-none px-2 py-1 text-gray-300"
       />
-      <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-        className="bg-transparent border-b border-gray-700 text-gray-300 outline-none"
-      >
-        <option value="low" className="bg-secondary">Low</option>
-        <option value="medium" className="bg-secondary">Medium</option>
-        <option value="high" className="bg-secondary">High</option>
-      </select>
+      {!defaultPriority && (
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          className="bg-transparent border-b border-gray-700 text-gray-300 outline-none"
+        >
+          <option value="low" className="bg-secondary">Low</option>
+          <option value="medium" className="bg-secondary">Medium</option>
+          <option value="high" className="bg-secondary">High</option>
+        </select>
+      )}
       <button
         type="submit"
         className="text-primary hover:text-primary/80 transition-colors"
