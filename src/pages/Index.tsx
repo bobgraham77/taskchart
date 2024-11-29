@@ -5,6 +5,13 @@ import { PlusCircle, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { format, subDays, subMonths } from "date-fns";
 import { TaskForm } from "@/components/TaskForm";
 
+// Add the missing interface
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
+}
+
 const generateDailyData = () => [
   { name: "9:00", completion: 65, task: "Review Q1 Report" },
   { name: "11:00", completion: 75, task: "Team Meeting" },
