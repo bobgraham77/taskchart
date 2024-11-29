@@ -42,6 +42,14 @@ export const TaskChart = ({ data, selectedPeriod }: TaskChartProps) => {
     );
   };
 
+  const getCustomTicks = (data: any[]) => {
+    if (data.length < 2) return [0];
+    const firstIndex = 0;
+    const middleIndex = Math.floor(data.length / 2);
+    const lastIndex = data.length - 1;
+    return [firstIndex, middleIndex, lastIndex];
+  };
+
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -57,6 +65,7 @@ export const TaskChart = ({ data, selectedPeriod }: TaskChartProps) => {
             axisLine={false}
             tickLine={false}
             tick={{ fill: '#666' }}
+            ticks={getCustomTicks(data)}
           />
           <YAxis 
             hide={true}
