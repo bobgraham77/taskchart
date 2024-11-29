@@ -9,10 +9,10 @@ export default {
         sans: ["Inter", "sans-serif"],
       },
       colors: {
-        primary: "#0070F3",
-        secondary: "#1A1F2C",
-        background: "#FFFFFF",
-        "card-bg": "#F7F9FC",
+        primary: "#00ff9d",
+        secondary: "#000000",
+        background: "#000000",
+        "card-bg": "#1a1a1a",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-out",
