@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area } from "recharts";
 import { Card } from "@/components/ui/card";
 import { PlusCircle, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
-import { format, subDays, subMonths } from "date-fns";
+import { format, subDays, subMonths, startOfMonth, endOfMonth, eachWeekOfInterval } from "date-fns";
 import { TaskForm } from "@/components/TaskForm";
 
 // Add the missing interface
@@ -34,11 +34,18 @@ const generateWeeklyData = () => {
 };
 
 const generateMonthlyData = () => {
-  return Array.from({ length: 30 }).map((_, index) => {
-    const date = subDays(new Date(), 29 - index);
+  const today = new Date();
+  const start = startOfMonth(today);
+  const end = endOfMonth(today);
+  
+  // Get weeks of the current month
+  const weeks = eachWeekOfInterval({ start, end });
+  
+  return weeks.map((weekStart, index) => {
+    const weekEnd = subDays(weeks[index + 1] || end, 1);
     return {
-      name: format(date, "d"),
-      fullDate: format(date, "PPPP"),
+      name: `Week ${index + 1}`,
+      fullDate: `${format(weekStart, "d MMM")} - ${format(weekEnd, "d MMM")}`,
       completion: Math.floor(Math.random() * 30) + 65,
     };
   });
@@ -84,30 +91,30 @@ const Index = () => {
     }
   }, [selectedPeriod]);
 
-  const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (!active || !payload || !payload.length) return null;
 
     const value = payload[0].value;
-    let label = "";
+    let tooltipLabel = "";
 
     switch (selectedPeriod) {
       case "day":
-        label = payload[0].payload.task || "";
+        tooltipLabel = payload[0].payload.task || "";
         break;
       case "week":
-        label = payload[0].payload.fullDate || "";
+        tooltipLabel = payload[0].payload.fullDate || "";
         break;
       case "month":
-        label = payload[0].payload.fullDate || "";
+        tooltipLabel = payload[0].payload.fullDate || "";
         break;
       case "year":
-        label = payload[0].payload.name;
+        tooltipLabel = payload[0].payload.name;
         break;
     }
 
     return (
       <div className="rounded-lg border border-border/50 bg-secondary/90 px-3 py-2 text-sm shadow-xl">
-        <p className="font-medium text-white mb-1">{label}</p>
+        <p className="font-medium text-white mb-1">{tooltipLabel}</p>
         <p className="text-gray-300">{value}% completed</p>
       </div>
     );
@@ -154,8 +161,8 @@ const Index = () => {
             <LineChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
               <defs>
                 <linearGradient id="colorCompletion" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00ff9d" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#00ff9d" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor="#00ff9d" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#00ff9d" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis 
@@ -170,12 +177,12 @@ const Index = () => {
               <Tooltip 
                 content={<CustomTooltip />}
               />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="completion"
                 stroke="#00ff9d"
                 strokeWidth={2}
-                dot={false}
+                fillOpacity={1}
                 fill="url(#colorCompletion)"
               />
             </LineChart>
