@@ -1,4 +1,4 @@
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Clock, CheckCircle } from "lucide-react";
 import { TaskForm } from "./TaskForm";
 import { useState } from "react";
 
@@ -57,7 +57,7 @@ export const PriorityColumn = ({ priority, tasks, onAddTask }: PriorityColumnPro
               <div className="flex items-center justify-between">
                 <span className="text-white">{task.title}</span>
                 {task.status === "completed" ? (
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-5 w-5 text-green-500" />
                 ) : (
                   <Clock className="h-5 w-5 text-gray-400" />
                 )}
