@@ -23,23 +23,23 @@ export const PriorityColumn = ({ priority, tasks, onAddTask }: PriorityColumnPro
       case "high":
         return "border-[#00ff9d]"; // Bright/flashy green
       case "medium":
-        return "border-[#00cc7d]"; // Normal green
+        return "border-[#00994d]"; // Darker/more muted green
       case "low":
-        return "border-[#009b5f]"; // Faded green
+        return "border-[#004d26]"; // Very dark/faded green
       default:
-        return "border-[#00cc7d]";
+        return "border-[#00994d]";
     }
   };
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2 mb-4">
         <h3 className="font-semibold capitalize text-gray-400">
           {priority} Priority
         </h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="text-white hover:text-white/80 transition-colors"
+          className="text-white hover:text-white/80 transition-colors ml-2"
         >
           <PlusCircle className="h-5 w-5" />
         </button>
