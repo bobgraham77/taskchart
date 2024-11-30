@@ -1,4 +1,4 @@
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { format } from "date-fns";
 
 interface CustomTooltipProps {
@@ -69,9 +69,16 @@ export const TaskChart = ({ data, selectedPeriod }: TaskChartProps) => {
           />
           <YAxis 
             hide={true}
+            domain={[0, 100]}
           />
           <Tooltip 
             content={<CustomTooltip />}
+          />
+          <ReferenceLine 
+            y={50} 
+            stroke="#666" 
+            strokeDasharray="3 3"
+            strokeWidth={1}
           />
           <Area
             type="monotone"
@@ -80,6 +87,7 @@ export const TaskChart = ({ data, selectedPeriod }: TaskChartProps) => {
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorCompletion)"
+            isAnimationActive={true}
           />
         </AreaChart>
       </ResponsiveContainer>

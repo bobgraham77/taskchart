@@ -71,20 +71,41 @@ const Index = () => {
   ]);
   const { toast } = useToast();
 
+  const completionPercentage = useMemo(() => {
+    if (tasks.length === 0) return 0;
+    const completedTasks = tasks.filter(task => task.status === "completed").length;
+    return Math.round((completedTasks / tasks.length) * 100);
+  }, [tasks]);
+
   const data = useMemo(() => {
     switch (selectedPeriod) {
       case "day":
-        return generateDailyData();
+        return generateDailyData().map(item => ({
+          ...item,
+          completion: completionPercentage
+        }));
       case "week":
-        return generateWeeklyData();
+        return generateWeeklyData().map(item => ({
+          ...item,
+          completion: completionPercentage
+        }));
       case "month":
-        return generateMonthlyData();
+        return generateMonthlyData().map(item => ({
+          ...item,
+          completion: completionPercentage
+        }));
       case "year":
-        return generateYearlyData();
+        return generateYearlyData().map(item => ({
+          ...item,
+          completion: completionPercentage
+        }));
       default:
-        return generateWeeklyData();
+        return generateWeeklyData().map(item => ({
+          ...item,
+          completion: completionPercentage
+        }));
     }
-  }, [selectedPeriod]);
+  }, [selectedPeriod, completionPercentage]);
 
   const handleAddTask = (newTask: { title: string; priority: string }) => {
     setTasks(prev => [...prev, { 
@@ -100,6 +121,18 @@ const Index = () => {
     toast({
       title: "Task deleted",
       description: "The task has been successfully removed",
+    });
+  };
+
+  const handleToggleTask = (taskId: number) => {
+    setTasks(prev => prev.map(task => 
+      task.id === taskId 
+        ? { ...task, status: task.status === "completed" ? "pending" : "completed" }
+        : task
+    ));
+    toast({
+      title: "Task status updated",
+      description: "The task status has been successfully updated",
     });
   };
 
@@ -146,6 +179,7 @@ const Index = () => {
             tasks={tasks}
             onAddTask={handleAddTask}
             onDeleteTask={handleDeleteTask}
+            onToggleTask={handleToggleTask}
           />
         ))}
       </div>
