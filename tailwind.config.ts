@@ -9,10 +9,14 @@ export default {
         sans: ["Inter", "sans-serif"],
       },
       colors: {
-        primary: "#00ff9d",
+        primary: "var(--primary-color, #00ff9d)",
         secondary: "#000000",
         background: "#000000",
         "card-bg": "#1a1a1a",
+        excellent: "#9b87f5",
+        good: "#00ff9d",
+        average: "#f97316",
+        poor: "#ef4444",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-out",

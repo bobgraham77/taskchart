@@ -1,118 +1,65 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
-import { format, subDays, subMonths, startOfMonth, endOfMonth, eachWeekOfInterval } from "date-fns";
 import { TaskChart } from "@/components/TaskChart";
 import { PriorityColumn } from "@/components/PriorityColumn";
 import { useToast } from "@/hooks/use-toast";
-
-const generateDailyData = () => [
-  { name: "9:00", completion: 65, task: "Review Q1 Report" },
-  { name: "11:00", completion: 75, task: "Team Meeting" },
-  { name: "13:00", completion: 85, task: "Update Documentation" },
-  { name: "15:00", completion: 70, task: "Client Call" },
-  { name: "17:00", completion: 90, task: "Code Review" },
-  { name: "19:00", completion: 95, task: "Project Planning" },
-  { name: "21:00", completion: 88, task: "Daily Summary" },
-];
-
-const generateWeeklyData = () => {
-  return Array.from({ length: 7 }).map((_, index) => {
-    const date = subDays(new Date(), 6 - index);
-    return {
-      name: format(date, "EEE"),
-      fullDate: format(date, "PP"),
-      completion: Math.floor(Math.random() * 30) + 65,
-    };
-  });
-};
-
-const generateMonthlyData = () => {
-  const today = new Date();
-  const start = startOfMonth(today);
-  const end = endOfMonth(today);
-  
-  // Get weeks of the current month
-  const weeks = eachWeekOfInterval({ start, end });
-  
-  return weeks.map((weekStart, index) => {
-    const weekEnd = subDays(weeks[index + 1] || end, 1);
-    return {
-      name: `Week ${index + 1}`,
-      fullDate: `${format(weekStart, "d MMM")} - ${format(weekEnd, "d MMM")}`,
-      completion: Math.floor(Math.random() * 30) + 65,
-    };
-  });
-};
-
-const generateYearlyData = () => {
-  return Array.from({ length: 12 }).map((_, index) => {
-    const date = subMonths(new Date(), 11 - index);
-    return {
-      name: format(date, "MMM"),
-      completion: Math.floor(Math.random() * 30) + 65,
-    };
-  });
-};
 
 interface Task {
   id: number;
   title: string;
   priority: "high" | "medium" | "low";
   status: "pending" | "completed";
+  timeOfDay: "Matin" | "Midi" | "Après-midi" | "Soir";
 }
 
 const Index = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState("week");
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: "Review Q1 Report", priority: "high", status: "pending" },
-    { id: 2, title: "Team Meeting", priority: "medium", status: "completed" },
-    { id: 3, title: "Update Documentation", priority: "low", status: "pending" },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const { toast } = useToast();
 
-  const completionPercentage = useMemo(() => {
-    if (tasks.length === 0) return 0;
-    const completedTasks = tasks.filter(task => task.status === "completed").length;
-    return Math.round((completedTasks / tasks.length) * 100);
+  const dailyPerformance = useMemo(() => {
+    const timeSlots = ["Matin", "Midi", "Après-midi", "Soir"];
+    return timeSlots.map(slot => {
+      const slotTasks = tasks.filter(task => task.timeOfDay === slot);
+      const totalTasks = slotTasks.length;
+      const completedTasks = slotTasks.filter(task => task.status === "completed").length;
+      const completion = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
+      
+      return {
+        name: slot,
+        completion,
+        totalTasks,
+        completedTasks
+      };
+    });
   }, [tasks]);
 
-  const data = useMemo(() => {
-    switch (selectedPeriod) {
-      case "day":
-        return generateDailyData().map(item => ({
-          ...item,
-          completion: completionPercentage
-        }));
-      case "week":
-        return generateWeeklyData().map(item => ({
-          ...item,
-          completion: completionPercentage
-        }));
-      case "month":
-        return generateMonthlyData().map(item => ({
-          ...item,
-          completion: completionPercentage
-        }));
-      case "year":
-        return generateYearlyData().map(item => ({
-          ...item,
-          completion: completionPercentage
-        }));
-      default:
-        return generateWeeklyData().map(item => ({
-          ...item,
-          completion: completionPercentage
-        }));
-    }
-  }, [selectedPeriod, completionPercentage]);
+  const dailyScore = useMemo(() => {
+    const completedTasks = tasks.filter(task => task.status === "completed").length;
+    return tasks.length === 0 ? 0 : (completedTasks / tasks.length) * 100;
+  }, [tasks]);
 
-  const handleAddTask = (newTask: { title: string; priority: string }) => {
+  const themeColor = useMemo(() => {
+    if (dailyScore >= 80) return "rgb(155, 135, 245)"; // excellent (violet)
+    if (dailyScore >= 50) return "rgb(0, 255, 157)"; // good (green)
+    if (dailyScore >= 30) return "rgb(249, 115, 22)"; // average (orange)
+    return "rgb(239, 68, 68)"; // poor (red)
+  }, [dailyScore]);
+
+  const getPerformanceLabel = (score: number) => {
+    if (score >= 80) return "Excellente";
+    if (score >= 50) return "Bonne";
+    if (score >= 30) return "Correcte";
+    return "À améliorer";
+  };
+
+  const handleAddTask = (newTask: { title: string; priority: string; timeOfDay: "Matin" | "Midi" | "Après-midi" | "Soir" }) => {
     setTasks(prev => [...prev, { 
       id: prev.length + 1, 
       title: newTask.title, 
       priority: newTask.priority as "high" | "medium" | "low",
-      status: "pending"
+      status: "pending",
+      timeOfDay: newTask.timeOfDay
     }]);
   };
 
@@ -137,38 +84,31 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-6 max-w-7xl mx-auto dark">
+    <div className="min-h-screen p-4 md:p-6 max-w-7xl mx-auto dark" style={{ "--primary-color": themeColor } as any}>
       <header className="mb-8 animate-fade-in">
         <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
           Task Dashboard
         </h1>
-        <p className="text-gray-400">Track your productivity and tasks</p>
+        <p className="text-gray-400">
+          Performance journalière: <span style={{ color: themeColor }}>{getPerformanceLabel(dailyScore)}</span>
+        </p>
       </header>
 
       <Card className="mb-8 animate-slide-up bg-secondary/20 border-0">
         <div className="flex justify-end mb-4 p-4">
           <div className="flex flex-wrap gap-2">
-            {[
-              { id: "day", label: "D" },
-              { id: "week", label: "W" },
-              { id: "month", label: "M" },
-              { id: "year", label: "Y" },
-            ].map(({ id, label }) => (
+            {["day", "week", "month", "year"].map(period => (
               <button
-                key={id}
-                onClick={() => setSelectedPeriod(id)}
-                className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                  selectedPeriod === id 
-                    ? "bg-primary/20 text-primary" 
-                    : "text-gray-500 hover:bg-secondary/40"
-                }`}
+                key={period}
+                className={`w-8 h-8 rounded-md flex items-center justify-center text-gray-500 hover:bg-secondary/40`}
+                style={{ color: themeColor }}
               >
-                {label}
+                {period.charAt(0).toUpperCase()}
               </button>
             ))}
           </div>
         </div>
-        <TaskChart data={data} selectedPeriod={selectedPeriod} />
+        <TaskChart data={dailyPerformance} themeColor={themeColor} />
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -185,7 +125,7 @@ const Index = () => {
       </div>
 
       <Card className="p-6 text-center bg-secondary/20 border-0">
-        <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-primary" />
+        <AlertTriangle className="h-12 w-12 mx-auto mb-4" style={{ color: themeColor }} />
         <h3 className="text-xl font-semibold mb-2 text-white">Connect with Notion</h3>
         <p className="text-gray-400 mb-4">
           Sync your tasks and boost your productivity
