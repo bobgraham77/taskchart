@@ -40,7 +40,7 @@ export const TaskForm = ({ onAddTask, defaultPriority = "medium" }: TaskFormProp
       )}
       <button
         type="submit"
-        className="text-primary hover:text-primary/80 transition-colors"
+        className="text-white hover:text-white/80 transition-colors"
       >
         <PlusCircle className="h-5 w-5" />
       </button>
