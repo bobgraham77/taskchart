@@ -14,26 +14,19 @@ interface PriorityColumnProps {
   tasks: Task[];
   onAddTask: (task: { title: string; priority: string }) => void;
   onDeleteTask?: (taskId: number) => void;
-  onToggleTask?: (taskId: number) => void;
 }
 
-export const PriorityColumn = ({ 
-  priority, 
-  tasks, 
-  onAddTask, 
-  onDeleteTask,
-  onToggleTask 
-}: PriorityColumnProps) => {
+export const PriorityColumn = ({ priority, tasks, onAddTask, onDeleteTask }: PriorityColumnProps) => {
   const [showForm, setShowForm] = useState(false);
 
   const getBorderColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "border-[#00ff9d]";
+        return "border-[#00ff9d]"; // Bright/flashy green
       case "medium":
-        return "border-[#00994d]";
+        return "border-[#00994d]"; // Darker/more muted green
       case "low":
-        return "border-[#004d26]";
+        return "border-[#004d26]"; // Very dark/faded green
       default:
         return "border-[#00994d]";
     }
@@ -72,20 +65,11 @@ export const PriorityColumn = ({
               <div className="flex items-center justify-between">
                 <span className="text-white">{task.title}</span>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => onToggleTask?.(task.id)}
-                    className={`transition-colors ${
-                      task.status === "completed" 
-                        ? "text-primary hover:text-primary/80" 
-                        : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    {task.status === "completed" ? (
-                      <CheckCircle className="h-5 w-5" />
-                    ) : (
-                      <Clock className="h-5 w-5" />
-                    )}
-                  </button>
+                  {task.status === "completed" ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <Clock className="h-5 w-5 text-gray-400" />
+                  )}
                   <button
                     onClick={() => onDeleteTask?.(task.id)}
                     className="text-gray-400 hover:text-red-500 transition-colors"
