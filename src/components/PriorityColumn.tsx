@@ -1,4 +1,4 @@
-import { PlusCircle, Clock, CheckCircle } from "lucide-react";
+import { PlusCircle, Clock, CheckCircle, Trash2 } from "lucide-react";
 import { TaskForm } from "./TaskForm";
 import { useState } from "react";
 
@@ -13,9 +13,10 @@ interface PriorityColumnProps {
   priority: "high" | "medium" | "low";
   tasks: Task[];
   onAddTask: (task: { title: string; priority: string }) => void;
+  onDeleteTask?: (taskId: number) => void;
 }
 
-export const PriorityColumn = ({ priority, tasks, onAddTask }: PriorityColumnProps) => {
+export const PriorityColumn = ({ priority, tasks, onAddTask, onDeleteTask }: PriorityColumnProps) => {
   const [showForm, setShowForm] = useState(false);
 
   const getBorderColor = (priority: string) => {
@@ -39,7 +40,7 @@ export const PriorityColumn = ({ priority, tasks, onAddTask }: PriorityColumnPro
         </h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="text-white hover:text-white/80 transition-colors ml-2"
+          className="text-white/80 hover:text-white transition-colors ml-2"
         >
           <PlusCircle className="h-5 w-5" />
         </button>
@@ -63,11 +64,19 @@ export const PriorityColumn = ({ priority, tasks, onAddTask }: PriorityColumnPro
             >
               <div className="flex items-center justify-between">
                 <span className="text-white">{task.title}</span>
-                {task.status === "completed" ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                ) : (
-                  <Clock className="h-5 w-5 text-gray-400" />
-                )}
+                <div className="flex items-center gap-2">
+                  {task.status === "completed" ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <Clock className="h-5 w-5 text-gray-400" />
+                  )}
+                  <button
+                    onClick={() => onDeleteTask?.(task.id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

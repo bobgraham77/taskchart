@@ -4,6 +4,7 @@ import { AlertTriangle } from "lucide-react";
 import { format, subDays, subMonths, startOfMonth, endOfMonth, eachWeekOfInterval } from "date-fns";
 import { TaskChart } from "@/components/TaskChart";
 import { PriorityColumn } from "@/components/PriorityColumn";
+import { useToast } from "@/hooks/use-toast";
 
 const generateDailyData = () => [
   { name: "9:00", completion: 65, task: "Review Q1 Report" },
@@ -68,6 +69,7 @@ const Index = () => {
     { id: 2, title: "Team Meeting", priority: "medium", status: "completed" },
     { id: 3, title: "Update Documentation", priority: "low", status: "pending" },
   ]);
+  const { toast } = useToast();
 
   const data = useMemo(() => {
     switch (selectedPeriod) {
@@ -91,6 +93,14 @@ const Index = () => {
       priority: newTask.priority as "high" | "medium" | "low",
       status: "pending"
     }]);
+  };
+
+  const handleDeleteTask = (taskId: number) => {
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+    toast({
+      title: "Task deleted",
+      description: "The task has been successfully removed",
+    });
   };
 
   return (
@@ -135,6 +145,7 @@ const Index = () => {
             priority={priority as "high" | "medium" | "low"}
             tasks={tasks}
             onAddTask={handleAddTask}
+            onDeleteTask={handleDeleteTask}
           />
         ))}
       </div>
